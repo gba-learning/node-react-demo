@@ -6,3 +6,11 @@ services:
       - 8080:3000
     volumes:
       - ./backend:/app/
+
+  terragrunt:
+    build:
+      context: ./infrastructure/
+    volumes:
+      - ./infrastructure:/workspace
+      - ~/.aws/:/root/.aws
+    command: tail -f /dev/null
