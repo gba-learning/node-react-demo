@@ -1,0 +1,13 @@
+name: Deploy Infrastructure
+
+on: push
+#  push:
+#    paths:
+#      - 'infrastructure/**'
+
+jobs:
+  lala:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello world!
+        run: echo 'Hello World!!!'
