@@ -30,10 +30,15 @@ terraform {
   }
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/28"
+# I know it's terrible to have a single EC2 instance without ASG/ALB, in default vpc, etc....
+# I'm poor though and we don't have customer so leave me alone !
+module "ec2_instance" {
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "~> 5.5"
 
-  tags = {
-    Name = "main-vpc"
-  }
+  name = "node-react-demo"
+
+  instance_type     = "t4g.micro"
+  ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
+
 }
