@@ -10,19 +10,22 @@ terraform {
 }
 
 provider "aws" {
-  region  = "eu-west-1"
+  region = "eu-west-1"
+
   default_tags {
-    Stack = "node-react-demo"
-    Environment = "staging"
+    tags = {
+      Stack       = "node-react-demo"
+      Environment = "staging"
+    }
   }
 }
 
 terraform {
   backend "s3" {
-    bucket = "node-react-demo-staging-tf-state"
-    key    = "tf-state"
-    region = "eu-west-1"
-    encrypt = true
+    bucket         = "node-react-demo-staging-tf-state"
+    key            = "tf-state"
+    region         = "eu-west-1"
+    encrypt        = true
     dynamodb_table = "node-react-demo-staging-lock-table"
   }
 }
