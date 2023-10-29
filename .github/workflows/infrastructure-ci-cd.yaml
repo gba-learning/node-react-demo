@@ -1,13 +1,42 @@
 name: Deploy Infrastructure
 
-on: push
-#  push:
-#    paths:
-#      - 'infrastructure/**'
+on:
+  push:
+    paths:
+      - 'infrastructure/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lala:
+  deploy-infrastructure:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Hello world!
-        run: echo 'Hello World!!!'
+      # TODO: Create OIDC provider + OIDC role in IaC
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.OIDC_AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+      - name: Checkout
+        uses: actions/checkout@v4
+      # TODO: Consider using docker action so we have consistency between local and CI
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.2
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./infrastructure
+      - name: Terraform Plan
+        run: terraform plan -input=false
+        working-directory: ./infrastructure
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
+        working-directory: ./infrastructure
