@@ -1,5 +1,10 @@
-FROM node
+FROM node:21
 
 WORKDIR /app
 
-RUN echo "lala" > lala.txt
+COPY . .
+
+RUN yarn
+RUN yarn build
+
+CMD yarn start
