@@ -1,6 +1,7 @@
 services:
   backend:
-    image: guillaumeb0/gba-test
+    build:
+      context: ./backend
     command: tail -f /dev/null
     ports:
       - 8080:3000
