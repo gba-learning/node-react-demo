@@ -42,3 +42,9 @@ module "ec2_instance" {
   ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
 
 }
+
+resource "aws_ecr_repository" "backend" {
+  name = "backend"
+
+  image_tag_mutability = "IMMUTABLE"
+}
