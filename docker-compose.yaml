@@ -11,6 +11,8 @@ services:
   terragrunt:
     build:
       context: ./infrastructure/
+    environment:
+      AWS_PROFILE: personal-account
     volumes:
       - ./infrastructure:/workspace
       - ~/.aws/:/root/.aws
