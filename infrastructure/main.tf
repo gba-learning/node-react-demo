@@ -44,7 +44,7 @@ module "ec2_instance" {
 }
 
 resource "aws_ecr_repository" "backend" {
-  name = "backend"
+  name = var.backend_repository_name
 
   image_tag_mutability = "IMMUTABLE"
 }

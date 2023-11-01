@@ -18,6 +18,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      TF_VAR_backend_repository_name: ${{ vars.ECR_BACKEND_REPOSITORY_NAME }}
     steps:
       # TODO: Create OIDC provider + OIDC role in IaC
       - name: Configure AWS Credentials
