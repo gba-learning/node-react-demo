@@ -1,0 +1,13 @@
+name: Test deployment
+
+on: push
+
+jobs:
+  my-awesome-test:
+    runs-on: ubuntu-latest
+    environment: lala-1
+    steps:
+      - run: |
+          echo <<EOF
+            ${{ toJson(github) }}
+          EOF
