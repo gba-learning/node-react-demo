@@ -38,8 +38,9 @@ module "ec2_instance" {
 
   name = "node-react-demo"
 
-  instance_type     = "t4g.micro"
-  ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
+  instance_type        = "t4g.micro"
+  ami_ssm_parameter    = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance.name
 
   user_data = <<EOF
     #!/bin/bash
@@ -55,4 +56,29 @@ resource "aws_ecr_repository" "backend" {
   name = var.backend_repository_name
 
   image_tag_mutability = "IMMUTABLE"
+}
+
+
+resource "aws_iam_instance_profile" "ec2_instance" {
+  name = "backend-instance-profile"
+  role = aws_iam_role.ec2_instance.name
+}
+
+resource "aws_iam_role" "ec2_instance" {
+  name = "backend-instance-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"]
+
 }
