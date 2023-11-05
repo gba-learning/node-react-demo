@@ -41,6 +41,14 @@ module "ec2_instance" {
   instance_type     = "t4g.micro"
   ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
 
+  user_data = <<EOF
+    #!/bin/bash
+    yum update -y
+    yum install docker -y
+    systemctl start docker
+    systemctl enable docker
+  EOF
+
 }
 
 resource "aws_ecr_repository" "backend" {
