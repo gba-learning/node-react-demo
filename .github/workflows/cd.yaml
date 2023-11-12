@@ -9,15 +9,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
     environment: staging
     outputs:
       ec2-instance-id: ${{ steps.terraform-output.outputs.ec2-instance-id }}
-    permissions:
-      id-token: write
-      contents: read
     env:
       TF_VAR_backend_repository_name: ${{ vars.ECR_BACKEND_REPOSITORY_NAME }}
     steps:
@@ -56,11 +57,16 @@ jobs:
     needs:
       - deploy-infrastructure
     steps:
-#      - name: Install AWS cli
-#        run: |
-#          curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip"
-#          unzip awscliv2.zip
-#          sudo ./aws/install
-      - name: Test show instance id
-        run: echo "${{ needs.deploy-infrastructure.outputs.ec2-instance-id }}"
-      - run:  aws ssm send-command --document-name "AWS-RunShellScript" --document-version "\$LATEST" --targets '[{"Key":"InstanceIds","Values":["${{ needs.deploy-infrastructure.outputs.ec2-instance-id }}"]}]' --parameters '{"commands":["eeecho \"Hello World from ssm run commanddddd\" > /tmp/res_from_github_actions.txt"]}' --timeout-seconds 600 --region eu-west-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.OIDC_AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+      - run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --document-version "\$LATEST" \
+            --targets '[{"Key":"InstanceIds","Values":["${{ needs.deploy-infrastructure.outputs.ec2-instance-id }}"]}]' \
+            --parameters '{"commands":["echo \"Hello World from ssm run commanddddd * 2\" > /tmp/res_from_github_actions.txt"]}' \
+            --timeout-seconds 600 \
+            --region eu-west-1
